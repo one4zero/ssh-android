@@ -375,11 +375,21 @@ class SshSession(val id: Int, host: HostConfig) {
             return p.accepted
         }
 
-        override fun askPassword(prompt: String): String? {
+        private fun passwordMessage(retry: Boolean): String {
+            val target = "${host.username}@${host.host}"
+            if (!retry) return target
+            val rootHint = if (host.username == "root") {
+                "\n\nЕсли пароль точно верный — возможно, на сервере запрещён вход root по паролю " +
+                    "(PermitRootLogin). Тогда войдите другим пользователем или по SSH-ключу."
+            } else ""
+            return "Пароль не подошёл, попробуйте ещё раз.\n$target$rootHint"
+        }
+
+        override fun askPassword(prompt: String, retry: Boolean): String? {
             val p = ask(
                 Prompt(
                     title = "Пароль",
-                    message = "${host.username}@${host.host}",
+                    message = passwordMessage(retry),
                     fields = listOf(Prompt.Field("Пароль", true)),
                     positive = "Войти",
                     negative = "Отмена",
@@ -410,12 +420,13 @@ class SshSession(val id: Int, host: HostConfig) {
             instruction: String,
             prompts: Array<String>,
             echo: BooleanArray,
+            retry: Boolean,
         ): Array<String>? {
             val isPassword = prompts.size == 1 && !echo[0] && prompts[0].contains("password", ignoreCase = true)
             val p = ask(
                 Prompt(
                     title = name.ifBlank { if (isPassword) "Пароль" else "Вход на сервер" },
-                    message = listOf("${host.username}@${host.host}", instruction).filter { it.isNotBlank() }.joinToString("\n"),
+                    message = listOf(passwordMessage(retry), instruction).filter { it.isNotBlank() }.joinToString("\n"),
                     fields = prompts.mapIndexed { i, s -> Prompt.Field(s.trim().trimEnd(':'), !echo[i]) },
                     positive = "Войти",
                     negative = "Отмена",
