@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1F2933</color>
+    <color name="primary_launcher">#1F2933</color>
+    <color name="accent">#2BB673</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="window_bg">#F4F6F8</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="text_primary">#1B1F23</color>
+    <color name="text_secondary">#5F6B76</color>
+    <color name="divider">#1F000000</color>
+    <color name="session_badge">#2BB673</color>
+    <color name="session_badge_off">#9AA5B1</color>
+
+    <color name="term_bg">#161616</color>
+    <color name="term_panel">#202326</color>
+    <color name="term_key_bg">#2C3035</color>
+    <color name="term_key_text">#E6E9EC</color>
+    <color name="term_key_active">#2BB673</color>
+    <color name="term_input_bg">#2A2E33</color>
+    <color name="term_hint">#8A949E</color>
+    <color name="term_chip_bg">#33393F</color>
+</resources>

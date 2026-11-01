@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SSH Term</string>
+    <string name="notification_channel">Активные SSH-сессии</string>
+    <string name="notification_sessions">SSH-сессий: %1$d</string>
+    <string name="notification_connected">Подключено %1$d из %2$d</string>
+    <string name="disconnect_all">Отключить все</string>
+
+    <string name="quick_connect_hint">user@host:port</string>
+    <string name="connect">Подключиться</string>
+    <string name="active_sessions">Активные сессии</string>
+    <string name="saved_servers">Серверы</string>
+    <string name="no_hosts">Нет сохранённых серверов.\nНажмите «+», чтобы добавить, или введите user@host выше.</string>
+    <string name="add_server">Добавить сервер</string>
+    <string name="keys">SSH-ключи</string>
+    <string name="snippets">Сниппеты (быстрые команды)</string>
+    <string name="settings">Настройки</string>
+    <string name="known_hosts_clear">Забыть ключи серверов</string>
+
+    <string name="edit">Изменить</string>
+    <string name="duplicate">Дублировать</string>
+    <string name="delete">Удалить</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="close">Закрыть</string>
+    <string name="ok">OK</string>
+
+    <string name="host_name">Название (необязательно)</string>
+    <string name="host_address">Хост или IP-адрес</string>
+    <string name="host_port">Порт</string>
+    <string name="host_user">Имя пользователя</string>
+    <string name="host_auth">Способ входа</string>
+    <string name="auth_password">Пароль</string>
+    <string name="auth_key">SSH-ключ</string>
+    <string name="host_password">Пароль (пусто — спрашивать при подключении)</string>
+    <string name="host_key">Ключ</string>
+    <string name="host_manage_keys">Управление ключами</string>
+    <string name="host_startup">Команда после входа (необязательно)</string>
+    <string name="host_new">Новый сервер</string>
+    <string name="host_edit">Сервер</string>
+    <string name="password_saved">Пароль сохранён (зашифрован)</string>
+    <string name="password_clear">Удалить сохранённый пароль</string>
+
+    <string name="command_hint">Команда…</string>
+    <string name="direct_mode_hint">Прямой ввод: нажмите на терминал</string>
+    <string name="send">Отправить</string>
+    <string name="paste">Вставить</string>
+    <string name="copy">Копировать</string>
+    <string name="select_all">Выделить всё</string>
+    <string name="history">История команд</string>
+    <string name="toggle_input">Режим ввода</string>
+    <string name="scroll_bottom">Вниз</string>
+    <string name="copied">Скопировано</string>
+    <string name="nothing_to_copy">Нечего копировать</string>
+    <string name="clipboard_empty">Буфер обмена пуст</string>
+    <string name="reconnect">Переподключиться</string>
+
+    <string name="menu_copy_last">Копировать вывод последней команды</string>
+    <string name="menu_copy_screen">Копировать экран</string>
+    <string name="menu_copy_all">Копировать всё</string>
+    <string name="menu_select_text">Выделить текст…</string>
+    <string name="menu_paste_terminal">Вставить в терминал</string>
+    <string name="menu_sessions">Сессии</string>
+    <string name="menu_new_session">Новое подключение</string>
+    <string name="menu_font_bigger">Шрифт крупнее</string>
+    <string name="menu_font_smaller">Шрифт мельче</string>
+    <string name="menu_keep_screen_on">Не выключать экран</string>
+    <string name="menu_save_snippet">Сохранить команду как сниппет</string>
+    <string name="menu_disconnect">Отключиться</string>
+    <string name="menu_clear_scrollback">Очистить историю экрана</string>
+
+    <string name="disconnect_confirm">Отключиться от сервера?</string>
+    <string name="remember_password">Запомнить пароль</string>
+    <string name="session_continues">Сессия продолжает работать в фоне</string>
+    <string name="history_empty">История пуста</string>
+    <string name="select_text_title">Выделите текст</string>
+
+    <string name="key_generate">Создать ключ</string>
+    <string name="key_import">Импортировать ключ</string>
+    <string name="key_import_file">Из файла</string>
+    <string name="key_import_paste">Вставить текст ключа</string>
+    <string name="key_name">Название ключа</string>
+    <string name="key_passphrase">Парольная фраза (если есть)</string>
+    <string name="key_copy_public">Копировать публичный ключ</string>
+    <string name="key_share_public">Поделиться публичным ключом</string>
+    <string name="key_none">Нет ключей. Создайте новый или импортируйте существующий.</string>
+    <string name="key_generating">Создание ключа…</string>
+    <string name="key_install_hint">Добавьте публичный ключ в ~/.ssh/authorized_keys на сервере.</string>
+
+    <string name="snippet_add">Добавить сниппет</string>
+    <string name="snippet_name">Название (необязательно)</string>
+    <string name="snippet_command">Команда</string>
+    <string name="snippet_autorun">Выполнять сразу (с Enter)</string>
+    <string name="snippet_none">Нет сниппетов</string>
+    <string name="move_up">Вверх</string>
+    <string name="move_down">Вниз</string>
+
+    <string name="settings_font">Размер шрифта</string>
+    <string name="settings_scheme">Цветовая схема терминала</string>
+    <string name="settings_scrollback">Строк истории экрана</string>
+    <string name="settings_keep_screen">Не выключать экран в терминале</string>
+    <string name="settings_no_suggestions">Отключить подсказки клавиатуры в строке команд</string>
+    <string name="settings_vibrate">Вибрация при нажатии доп. клавиш</string>
+    <string name="settings_snippets">Показывать панель сниппетов</string>
+    <string name="settings_extra_keys">Показывать доп. клавиши (Ctrl, Esc, стрелки…)</string>
+    <string name="settings_direct_default">Прямой ввод в терминал по умолчанию</string>
+    <string name="settings_about">SSH Term %1$s — SSH-клиент с удобным вводом команд, копированием и вставкой.</string>
+</resources>
