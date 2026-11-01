@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/window_bg</item>
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:navigationBarColor">@color/window_bg</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:alertDialogTheme">@style/DialogTheme</item>
+    </style>
+
+    <style name="AppTheme.Terminal" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">@color/term_panel</item>
+        <item name="android:colorPrimaryDark">@color/term_panel</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/term_bg</item>
+        <item name="android:statusBarColor">@color/term_panel</item>
+        <item name="android:navigationBarColor">@color/term_panel</item>
+        <item name="android:alertDialogTheme">@style/DialogTheme.Dark</item>
+    </style>
+
+    <style name="DialogTheme" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+
+    <style name="DialogTheme.Dark" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+
+    <style name="ToolbarTheme" parent="android:ThemeOverlay.Material.Dark.ActionBar">
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+
+    <style name="PopupTheme" parent="android:ThemeOverlay.Material.Light" />
+
+    <style name="ExtraKey">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">1.5dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/term_key_text</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:background">@drawable/bg_extra_key</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <style name="BarButton">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:tint">@color/term_key_text</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <style name="SectionHeader">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="FormLabel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+</resources>
