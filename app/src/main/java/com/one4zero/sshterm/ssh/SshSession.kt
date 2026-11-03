@@ -60,6 +60,11 @@ class SshSession(val id: Int, host: HostConfig) {
     /** Absolute terminal row where the last command from the input line was sent. */
     var lastCommandRow = -1L
 
+    /** Text of the last command sent from the input line. */
+    @Volatile
+    var lastCommand: String? = null
+        private set
+
     @Volatile
     private var cols = 80
 
@@ -232,6 +237,7 @@ class SshSession(val id: Int, host: HostConfig) {
 
     /** Sends a command from the input line followed by Enter. */
     fun sendCommand(command: String) {
+        lastCommand = command
         synchronized(emulator) {
             lastCommandRow = if (emulator.isAltScreen) -1 else emulator.absoluteRow(emulator.cursorY)
         }

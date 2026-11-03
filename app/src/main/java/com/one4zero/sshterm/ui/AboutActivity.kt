@@ -60,10 +60,22 @@ class AboutActivity : Activity() {
             },
         )
         content.addView(
-            centered(getString(R.string.about_description), 15f).apply {
-                setPadding(dp(28), dp(14), dp(28), dp(4))
+            centered(getString(R.string.about_tagline), 15f, bold = true).apply {
+                setTextColor(getColor(R.color.accent))
+                setPadding(0, dp(6), 0, 0)
             },
         )
+        content.addView(
+            centered(getString(R.string.about_description), 15f).apply {
+                setPadding(dp(28), dp(12), dp(28), dp(4))
+            },
+        )
+
+        section(getString(R.string.about_free_title))
+        body(getString(R.string.about_free))
+
+        section(getString(R.string.about_ai_title))
+        body(getString(R.string.about_ai))
 
         section(getString(R.string.about_author_title))
         body(getString(R.string.about_author), 17f, bold = true)
@@ -73,6 +85,7 @@ class AboutActivity : Activity() {
 
         section(getString(R.string.about_source_title))
         link(REPO_URL)
+        link(PRIVACY_URL, getString(R.string.about_privacy))
 
         section(getString(R.string.about_changes_title))
         body(getString(R.string.about_changes))
@@ -110,9 +123,9 @@ class AboutActivity : Activity() {
         })
     }
 
-    private fun link(url: String) {
+    private fun link(url: String, label: String = url) {
         content.addView(TextView(this).apply {
-            text = url
+            text = label
             textSize = 14f
             setTextColor(getColor(R.color.accent))
             setPadding(dp(20), dp(4), dp(20), dp(4))
@@ -127,6 +140,7 @@ class AboutActivity : Activity() {
     }
 
     companion object {
-        private const val REPO_URL = "https://github.com/one4zero/ssh-android"
+        const val REPO_URL = "https://github.com/one4zero/ssh-android"
+        const val PRIVACY_URL = "https://github.com/one4zero/ssh-android/blob/main/PRIVACY.md"
     }
 }

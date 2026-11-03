@@ -286,6 +286,10 @@ class Settings(context: Context) {
         get() = prefs.getBoolean("showExtraKeys", true)
         set(v) = prefs.edit().putBoolean("showExtraKeys", v).apply()
 
+    var smartPaste: Boolean
+        get() = prefs.getBoolean("smartPaste", true)
+        set(v) = prefs.edit().putBoolean("smartPaste", v).apply()
+
     var directInputDefault: Boolean
         get() = prefs.getBoolean("directInput", false)
         set(v) = prefs.edit().putBoolean("directInput", v).apply()

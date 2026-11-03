@@ -245,7 +245,7 @@ class SshConnection(
             hostKeys.remove(host, type)
         }
 
-        override fun getKnownHostsRepositoryID(): String = "ssh-term"
+        override fun getKnownHostsRepositoryID(): String = "clipshell"
 
         override fun getHostKey(): Array<HostKey> = emptyArray()
 

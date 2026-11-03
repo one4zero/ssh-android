@@ -49,6 +49,7 @@ class SettingsActivity : Activity() {
         header("Ввод")
         switchRow(getString(R.string.settings_direct_default), settings.directInputDefault) { settings.directInputDefault = it }
         switchRow(getString(R.string.settings_no_suggestions), settings.noSuggestions) { settings.noSuggestions = it }
+        switchRow(getString(R.string.settings_smart_paste), settings.smartPaste) { settings.smartPaste = it }
         switchRow(getString(R.string.settings_extra_keys), settings.showExtraKeys) { settings.showExtraKeys = it }
         switchRow(getString(R.string.settings_snippets), settings.showSnippets) { settings.showSnippets = it }
         switchRow(getString(R.string.settings_vibrate), settings.vibrateOnKeys) { settings.vibrateOnKeys = it }
