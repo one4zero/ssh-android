@@ -53,6 +53,10 @@
             android:name=".ui.SettingsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.AboutActivity"
+            android:exported="false" />
+
         <service
             android:name=".ssh.SshService"
             android:exported="false"

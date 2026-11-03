@@ -104,5 +104,28 @@
     <string name="settings_snippets">Показывать панель сниппетов</string>
     <string name="settings_extra_keys">Показывать доп. клавиши (Ctrl, Esc, стрелки…)</string>
     <string name="settings_direct_default">Прямой ввод в терминал по умолчанию</string>
-    <string name="settings_about">SSH Term %1$s — SSH-клиент с удобным вводом команд, копированием и вставкой.</string>
+
+    <string name="about">О приложении</string>
+    <string name="about_version">Версия %1$s (сборка %2$d)</string>
+    <string name="about_description">SSH-клиент для Android с удобным вводом команд, копированием и вставкой.</string>
+    <string name="about_author_title">Автор</string>
+    <string name="about_author">Ага Умудханов</string>
+    <string name="about_built_title">Разработка</string>
+    <string name="about_built_with">Разработано с помощью Claude Code.</string>
+    <string name="about_source_title">Исходный код</string>
+    <string name="about_changes_title">Что нового в версии 1.1</string>
+    <string name="about_changes">• Отдельный раздел «О приложении».
+• Понятные сообщения об ошибках входа: приложение показывает, какие способы входа принимает сервер (только ключ, пароль), и подсказывает, что делать.
+• При повторном запросе пароля видно, что предыдущий не подошёл.</string>
+    <string name="about_tips_title">Подсказки</string>
+    <string name="about_tips">• Строка внизу — для набора команд: кнопка ➤ отправляет команду с Enter, долгое нажатие — вставляет без Enter.
+• Кнопка ⌨ переключает прямой ввод в терминал (для vim, nano, htop, mc).
+• Долгое нажатие на терминал выделяет слово; тяните за маркеры, чтобы расширить выделение.
+• Двойное нажатие на слово в выводе вставляет его в строку команды.
+• Кнопка ⧉ вверху копирует вывод последней команды.
+• Долгое нажатие на кнопку вставки вставляет текст сразу в терминал.
+• Щипок двумя пальцами меняет размер шрифта.</string>
+    <string name="about_libraries_title">Библиотеки</string>
+    <string name="about_libraries">JSch (mwiede) — реализация протокола SSH, лицензия BSD.
+Bouncy Castle — криптография (Ed25519, Curve25519, ChaCha20-Poly1305), лицензия MIT.</string>
 </resources>
