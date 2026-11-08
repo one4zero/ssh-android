@@ -10,6 +10,7 @@
 **Разработано с помощью** [Claude Code](https://claude.com/claude-code).
 
 **Скачать APK:** [dist/clipshell-1.2.apk](dist/clipshell-1.2.apk) — версия 1.2, Android 8.0+.
+Для Google Play: [dist/clipshell-1.2.aab](dist/clipshell-1.2.aab), инструкция — [play/PUBLISHING.md](play/PUBLISHING.md).
 
 ## Возможности
 
