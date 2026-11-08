@@ -34,14 +34,23 @@ interface ConnectionCallbacks {
     /** Server key differs from the remembered one. Return true to replace it. */
     fun confirmChangedHostKey(host: String, keyType: String, oldFingerprint: String, newFingerprint: String): Boolean
 
-    /** Returns the password, or null if the user cancelled. */
-    fun askPassword(prompt: String): String?
+    /**
+     * Returns the password, or null if the user cancelled.
+     * [retry] is true when a previous password was rejected by the server.
+     */
+    fun askPassword(prompt: String, retry: Boolean): String?
 
     /** Returns the key passphrase, or null if the user cancelled. */
     fun askPassphrase(prompt: String): String?
 
-    /** Returns answers, or null if the user cancelled. */
-    fun askKeyboardInteractive(name: String, instruction: String, prompts: Array<String>, echo: BooleanArray): Array<String>?
+    /** Returns answers, or null if the user cancelled. [retry]: a previous password was rejected. */
+    fun askKeyboardInteractive(
+        name: String,
+        instruction: String,
+        prompts: Array<String>,
+        echo: BooleanArray,
+        retry: Boolean,
+    ): Array<String>?
 
     fun showMessage(message: String)
 }
@@ -107,7 +116,7 @@ class SshConnection(
             ch.connect(15_000)
         } catch (e: Exception) {
             disconnect()
-            throw SshError(describe(e), e)
+            throw SshError(describeError(e), e)
         }
     }
 
@@ -137,6 +146,8 @@ class SshConnection(
         private var savedPasswordUsed = false
         private var savedPasswordUsedKi = false
         private var savedPassphraseUsed = false
+        private var passwordAttempts = 0
+        private var kiPasswordAttempts = 0
 
         override fun getPassword(): String? = password
         override fun getPassphrase(): String? = passphrase
@@ -147,8 +158,9 @@ class SshConnection(
                 savedPasswordUsed = true
                 saved
             } else {
-                callbacks.askPassword(message)
+                callbacks.askPassword(message, retry = passwordAttempts > 0)
             }
+            if (password != null) passwordAttempts++
             return password != null
         }
 
@@ -183,13 +195,15 @@ class SshConnection(
                 return emptyArray()
             }
             val saved = params.password
-            if (saved != null && !savedPasswordUsedKi && prompt.size == 1 && !echo[0] &&
-                prompt[0].contains("password", ignoreCase = true)
-            ) {
+            val isPassword = prompt.size == 1 && !echo[0] && prompt[0].contains("password", ignoreCase = true)
+            if (saved != null && !savedPasswordUsedKi && isPassword) {
                 savedPasswordUsedKi = true
+                kiPasswordAttempts++
                 return arrayOf(saved)
             }
-            return callbacks.askKeyboardInteractive(name, instruction, prompt, echo)
+            val answers = callbacks.askKeyboardInteractive(name, instruction, prompt, echo, retry = isPassword && kiPasswordAttempts > 0)
+            if (answers != null && isPassword) kiPasswordAttempts++
+            return answers
         }
     }
 
@@ -231,7 +245,7 @@ class SshConnection(
             hostKeys.remove(host, type)
         }
 
-        override fun getKnownHostsRepositoryID(): String = "ssh-term"
+        override fun getKnownHostsRepositoryID(): String = "clipshell"
 
         override fun getHostKey(): Array<HostKey> = emptyArray()
 
@@ -246,7 +260,45 @@ class SshConnection(
 
     class SshError(message: String, cause: Throwable?) : Exception(message, cause)
 
+    /** Like [describe], but explains authentication failures using the methods the server accepts. */
+    private fun describeError(e: Throwable): String {
+        val match = AUTH_FAIL.find(e.message ?: "") ?: return describe(e)
+        if (match.groupValues[1] == "cancel") return "Вход отменён"
+        val methods = match.groupValues[2].split(',').map { it.trim() }.filter { it.isNotEmpty() }
+        val passwordAllowed = "password" in methods || "keyboard-interactive" in methods
+        val keyUsed = !params.privateKey.isNullOrBlank()
+        val user = params.username
+        val text = when {
+            !passwordAllowed && !keyUsed ->
+                "Сервер разрешает вход только по SSH-ключу, вход по паролю на нём отключён. " +
+                    "Создайте ключ (меню → SSH-ключи), добавьте его публичную часть на сервер в файл " +
+                    "~/.ssh/authorized_keys пользователя $user и выберите этот ключ в настройках сервера."
+            !passwordAllowed ->
+                "Сервер не принял SSH-ключ. Проверьте, что публичный ключ добавлен в ~/.ssh/authorized_keys " +
+                    "пользователя $user на сервере."
+            else -> buildString {
+                append("Неверное имя пользователя или пароль")
+                if (keyUsed) append(" (SSH-ключ тоже не подошёл)")
+                append('.')
+                if (user == "root") {
+                    append(" Если пароль верный — на сервере, вероятно, запрещён вход root по паролю ")
+                    append("(PermitRootLogin): войдите другим пользователем или по SSH-ключу.")
+                }
+            }
+        }
+        val accepted = if (methods.isEmpty()) "" else "\nСервер принимает: " + methods.joinToString(", ") { METHOD_NAMES[it] ?: it }
+        return text + accepted
+    }
+
     companion object {
+        private val AUTH_FAIL = Regex("Auth (fail|cancel) for methods '([^']*)'")
+        private val METHOD_NAMES = mapOf(
+            "publickey" to "ключ (publickey)",
+            "password" to "пароль (password)",
+            "keyboard-interactive" to "пароль (keyboard-interactive)",
+            "gssapi-with-mic" to "Kerberos (gssapi-with-mic)",
+        )
+
         fun describe(e: Throwable): String {
             var cause: Throwable? = e
             while (cause != null) {

@@ -51,7 +51,7 @@ fun Activity.setupEdgeToEdge(root: View, top: View) {
     }
 }
 
-fun Context.copyToClipboard(text: String, label: String = "SSH Term", sensitive: Boolean = false) {
+fun Context.copyToClipboard(text: String, label: String = "ClipShell", sensitive: Boolean = false) {
     val cm = getSystemService(ClipboardManager::class.java)
     val clip = ClipData.newPlainText(label, text)
     if (sensitive && Build.VERSION.SDK_INT >= 24) {

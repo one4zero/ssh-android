@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SSH Term</string>
+    <string name="app_name">ClipShell</string>
     <string name="notification_channel">Активные SSH-сессии</string>
     <string name="notification_sessions">SSH-сессий: %1$d</string>
     <string name="notification_connected">Подключено %1$d из %2$d</string>
@@ -104,5 +104,33 @@
     <string name="settings_snippets">Показывать панель сниппетов</string>
     <string name="settings_extra_keys">Показывать доп. клавиши (Ctrl, Esc, стрелки…)</string>
     <string name="settings_direct_default">Прямой ввод в терминал по умолчанию</string>
-    <string name="settings_about">SSH Term %1$s — SSH-клиент с удобным вводом команд, копированием и вставкой.</string>
+
+    <string name="about">О приложении</string>
+    <string name="about_version">Версия %1$s (сборка %2$d)</string>
+    <string name="about_tagline">SSH для работы с ИИ</string>
+    <string name="about_description">SSH-клиент, созданный специально для работы с ИИ-ассистентами: одной кнопкой копируйте команду вместе с выводом в чат, а команды из ответа вставляйте без лишней разметки.</string>
+    <string name="about_free_title">Полностью бесплатно</string>
+    <string name="about_free">Без рекламы, подписок, встроенных покупок и регистрации. Приложение не собирает и никуда не отправляет ваши данные: серверы, ключи и история хранятся только на устройстве в зашифрованном виде.</string>
+    <string name="about_ai_title">Для работы с ИИ</string>
+    <string name="about_ai">• «Копировать для ИИ» — команда и её вывод в виде блока кода, готового для вставки в чат.\n• «Отправить в ИИ» — то же самое сразу в приложение ассистента через «Поделиться».\n• Выделенный текст можно скопировать как блок кода кнопкой «Для ИИ».\n• Умная вставка: из скопированного ответа ИИ убираются обрамление ``` и символы $ перед командами.\n• Команда из чата сначала попадает в строку ввода — вы видите её перед выполнением.</string>
+    <string name="about_author_title">Автор</string>
+    <string name="about_author">Ага Умудханов</string>
+    <string name="about_built_title">Разработка</string>
+    <string name="about_built_with">Разработано с помощью Claude Code.</string>
+    <string name="about_source_title">Исходный код и политика конфиденциальности</string>
+    <string name="about_privacy">Политика конфиденциальности</string>
+    <string name="about_changes_title">Что нового в версии 1.2</string>
+    <string name="about_changes">• Новое название — ClipShell.\n• Функции для работы с ИИ: «Копировать для ИИ», «Отправить в ИИ», умная вставка команд.\n• Поддержка Android 16.\n\nВерсия 1.1: раздел «О приложении», понятные сообщения об ошибках входа.</string>
+    <string name="about_tips_title">Подсказки</string>
+    <string name="about_tips">• Строка внизу — для набора команд: кнопка ➤ отправляет команду с Enter, долгое нажатие — вставляет без Enter.\n• Кнопка ⌨ переключает прямой ввод в терминал (для vim, nano, htop, mc).\n• Долгое нажатие на терминал выделяет слово; тяните за маркеры, чтобы расширить выделение.\n• Двойное нажатие на слово в выводе вставляет его в строку команды.\n• Кнопка ⧉ вверху копирует последнюю команду с выводом для ИИ.\n• Долгое нажатие на кнопку вставки вставляет текст сразу в терминал.\n• Щипок двумя пальцами меняет размер шрифта.</string>
+    <string name="about_libraries_title">Библиотеки</string>
+    <string name="about_libraries">JSch (mwiede) — реализация протокола SSH, лицензия BSD.\nBouncy Castle — криптография (Ed25519, Curve25519, ChaCha20-Poly1305), лицензия MIT.</string>
+
+    <string name="menu_copy_for_ai">Копировать для ИИ</string>
+    <string name="menu_share_to_ai">Отправить в ИИ…</string>
+    <string name="for_ai">Для ИИ</string>
+    <string name="share_to_ai_title">Отправить в ИИ-ассистента</string>
+    <string name="copied_for_ai">Скопировано для ИИ</string>
+    <string name="smart_paste_cleaned">Разметка из ответа ИИ убрана</string>
+    <string name="settings_smart_paste">Умная вставка: убирать ``` и $ из команд, скопированных из ИИ</string>
 </resources>

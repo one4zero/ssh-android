@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -33,12 +34,15 @@ import android.widget.PopupMenu
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toolbar
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import com.one4zero.sshterm.App
 import com.one4zero.sshterm.R
 import com.one4zero.sshterm.data.Snippet
 import com.one4zero.sshterm.ssh.Prompt
 import com.one4zero.sshterm.ssh.SessionManager
 import com.one4zero.sshterm.ssh.SshSession
+import com.one4zero.sshterm.terminal.AiText
 import com.one4zero.sshterm.terminal.KeyEncoder
 import com.one4zero.sshterm.terminal.TermKey
 import com.one4zero.sshterm.terminal.TerminalColors
@@ -158,6 +162,7 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
 
     override fun onPause() {
         resumed = false
+        showBackgroundHintIfLeaving()
         super.onPause()
     }
 
@@ -169,19 +174,41 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
         super.onDestroy()
     }
 
+    /** Back closes the text selection first (predictive back on Android 13+). */
+    private val selectionBackCallback: Any? =
+        if (Build.VERSION.SDK_INT >= 33) OnBackInvokedCallback { terminalView.clearSelection() } else null
+    private var selectionBackRegistered = false
+
+    private fun updateBackCallback(selectionActive: Boolean) {
+        if (Build.VERSION.SDK_INT < 33 || selectionActive == selectionBackRegistered) return
+        val cb = selectionBackCallback as OnBackInvokedCallback
+        if (selectionActive) {
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, cb)
+        } else {
+            onBackInvokedDispatcher.unregisterOnBackInvokedCallback(cb)
+        }
+        selectionBackRegistered = selectionActive
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        // Only called on Android 12 and older; newer versions use OnBackInvokedCallback.
         if (terminalView.hasSelection) {
             terminalView.clearSelection()
             return
         }
-        val s = session
-        if (s != null && s.state != SshSession.State.DISCONNECTED && !settings.backgroundHintShown) {
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
+    }
+
+    private fun showBackgroundHintIfLeaving() {
+        val s = session ?: return
+        if (isFinishing && s.state != SshSession.State.DISCONNECTED && SessionManager.get(s.id) != null &&
+            !settings.backgroundHintShown
+        ) {
             settings.backgroundHintShown = true
             toast(getString(R.string.session_continues))
         }
-        @Suppress("DEPRECATION")
-        super.onBackPressed()
     }
 
     private fun attach(s: SshSession) {
@@ -284,6 +311,11 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
         findViewById<View>(R.id.sel_copy).setOnClickListener {
             val text = terminalView.getSelectedText()
             if (text.isNotEmpty()) copyToClipboard(text) else toast(getString(R.string.nothing_to_copy))
+            terminalView.clearSelection()
+        }
+        findViewById<View>(R.id.sel_ai).setOnClickListener {
+            val text = terminalView.getSelectedText()
+            if (text.isNotBlank()) copyForAi(AiText.codeBlock(null, text)) else toast(getString(R.string.nothing_to_copy))
             terminalView.clearSelection()
         }
         findViewById<View>(R.id.sel_all).setOnClickListener { terminalView.selectAll() }
@@ -540,7 +572,12 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
             session?.paste(text)
             terminalView.scrollToBottom()
         } else {
-            insertIntoInput(text)
+            var toInsert = text
+            if (settings.smartPaste) {
+                toInsert = AiText.cleanCommand(text)
+                if (toInsert != text.trimEnd()) toast(getString(R.string.smart_paste_cleaned))
+            }
+            insertIntoInput(toInsert)
             commandInput.requestFocus()
         }
     }
@@ -618,10 +655,12 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
     // ---------------------------------------------------------------- menu
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(0, M_COPY_LAST, 0, R.string.menu_copy_last).setIcon(R.drawable.ic_copy)
+        menu.add(0, M_COPY_AI, 0, R.string.menu_copy_for_ai).setIcon(R.drawable.ic_copy)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         menu.add(0, M_SELECT, 1, R.string.menu_select_text).setIcon(R.drawable.ic_select)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+        menu.add(0, M_SHARE_AI, 1, R.string.menu_share_to_ai)
+        menu.add(0, M_COPY_LAST, 1, R.string.menu_copy_last)
         menu.add(0, M_COPY_SCREEN, 2, R.string.menu_copy_screen)
         menu.add(0, M_COPY_ALL, 3, R.string.menu_copy_all)
         menu.add(0, M_PASTE, 4, R.string.menu_paste_terminal)
@@ -646,6 +685,14 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
                     out.isBlank() -> toast("У последней команды нет вывода")
                     else -> copyToClipboard(out)
                 }
+            }
+            M_COPY_AI -> {
+                val payload = aiPayload()
+                if (payload != null) copyForAi(payload) else toast(getString(R.string.nothing_to_copy))
+            }
+            M_SHARE_AI -> {
+                val payload = aiPayload()
+                if (payload != null) shareToAi(payload) else toast(getString(R.string.nothing_to_copy))
             }
             M_SELECT -> showSelectTextDialog()
             M_COPY_SCREEN -> s?.let {
@@ -690,6 +737,35 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
             else -> return super.onOptionsItemSelected(item)
         }
         return true
+    }
+
+    /** Last command with its output (or the visible screen) as a Markdown code block for an AI chat. */
+    private fun aiPayload(): String? {
+        val s = session ?: return null
+        val out = s.lastCommandOutput()
+        if (out != null) return AiText.codeBlock(s.lastCommand, out)
+        val screen = synchronized(s.emulator) {
+            val e = s.emulator
+            e.getText(e.absoluteRow(0), 0, e.absoluteRow(e.rows - 1), Int.MAX_VALUE)
+        }.trim('\n').trimEnd()
+        return if (screen.isBlank()) null else AiText.codeBlock(null, screen)
+    }
+
+    private fun copyForAi(text: String) {
+        copyToClipboard(text)
+        if (android.os.Build.VERSION.SDK_INT >= 33) toast(getString(R.string.copied_for_ai))
+    }
+
+    private fun shareToAi(text: String) {
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, text)
+        }
+        try {
+            startActivity(Intent.createChooser(send, getString(R.string.share_to_ai_title)))
+        } catch (e: Exception) {
+            copyForAi(text)
+        }
     }
 
     private fun changeFont(delta: Float) {
@@ -850,6 +926,7 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
 
     override fun onSelectionChanged(active: Boolean) {
         selectionBar.visibility = if (active) View.VISIBLE else View.GONE
+        updateBackCallback(active)
     }
 
     override fun onScrollPositionChanged(scrolledBack: Boolean) {
@@ -904,5 +981,7 @@ class TerminalActivity : Activity(), SshSession.Listener, TerminalView.Client {
         private const val M_SAVE_SNIPPET = 10
         private const val M_CLEAR = 11
         private const val M_DISCONNECT = 12
+        private const val M_COPY_AI = 13
+        private const val M_SHARE_AI = 14
     }
 }

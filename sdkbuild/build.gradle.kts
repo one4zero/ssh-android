@@ -171,7 +171,7 @@ val dex by tasks.registering(JavaExec::class) {
 
 val unsignedApk = buildDirFile.resolve("intermediates/apk/unsigned.apk")
 val alignedApk = buildDirFile.resolve("intermediates/apk/aligned.apk")
-val outputApk = buildDirFile.resolve("outputs/ssh-term-$versionName.apk")
+val outputApk = buildDirFile.resolve("outputs/clipshell-$versionName.apk")
 
 val packageApk by tasks.registering {
     dependsOn(dex, linkResources)
@@ -221,7 +221,7 @@ val createKeystore by tasks.registering(Exec::class) {
         "-keypass", keyPassword,
         "-alias", keyAlias,
         "-keyalg", "RSA", "-keysize", "3072", "-validity", "10000",
-        "-dname", "CN=SSH Term",
+        "-dname", "CN=ClipShell",
     )
 }
 
@@ -249,4 +249,125 @@ val assembleApk by tasks.registering(Exec::class) {
         alignedApk.absolutePath,
     )
     doLast { println("APK: ${outputApk.absolutePath}") }
+}
+
+// ---------------------------------------------------------------- Android App Bundle (Google Play)
+//
+// Google Play accepts only .aab for new apps. Needs bundletool
+// (https://github.com/google/bundletool/releases): put bundletool-all-<version>.jar into
+// sdkbuild/tools/ or pass -Pbundletool=/path/to/bundletool.jar.
+// The bundle is signed with the Play *upload key* described in keystore/upload.properties:
+//   storeFile=upload-key.jks   (relative to keystore/)
+//   storePassword=...
+//   keyAlias=upload
+//   keyPassword=...
+// or with -Pupload.storeFile=... -Pupload.storePassword=... -Pupload.keyAlias=... -Pupload.keyPassword=...
+//
+//   ./gradlew -p sdkbuild bundleRelease   ->  sdkbuild/build/outputs/clipshell-<version>.aab
+
+val bundletoolJar: File = (findProperty("bundletool") as String?)?.let { File(it) }
+    ?: rootDir.resolve("tools").listFiles { f -> f.name.startsWith("bundletool") && f.name.endsWith(".jar") }
+        ?.maxByOrNull { it.name }
+    ?: rootDir.resolve("tools/bundletool-all.jar")
+
+val uploadProps = Properties().apply {
+    rootDir.resolve("keystore/upload.properties").takeIf { it.exists() }?.reader()?.use { load(it) }
+}
+
+fun uploadProp(name: String): String? = (findProperty("upload.$name") as String?) ?: uploadProps.getProperty(name)
+
+val protoResourcesApk = buildDirFile.resolve("intermediates/res/resources-proto.ap_")
+val baseModuleZip = buildDirFile.resolve("intermediates/bundle/base.zip")
+val unsignedBundle = buildDirFile.resolve("intermediates/bundle/unsigned.aab")
+val outputBundle = buildDirFile.resolve("outputs/clipshell-$versionName.aab")
+
+val linkResourcesProto by tasks.registering(Exec::class) {
+    dependsOn(compileResources, processManifest)
+    inputs.file(compiledRes)
+    inputs.file(processedManifest)
+    outputs.file(protoResourcesApk)
+    commandLine(
+        tool("aapt2"), "link", "--proto-format",
+        "-I", androidJar.absolutePath,
+        "--manifest", processedManifest.absolutePath,
+        "--min-sdk-version", minSdk,
+        "--target-sdk-version", targetSdk,
+        "--version-code", versionCode,
+        "--version-name", versionName,
+        "--auto-add-overlay",
+        "-o", protoResourcesApk.absolutePath,
+        compiledRes.absolutePath,
+    )
+}
+
+/** Module layout expected by bundletool: manifest/, dex/, res/, resources.pb. */
+val packageBaseModule by tasks.registering {
+    dependsOn(linkResourcesProto, dex)
+    inputs.file(protoResourcesApk)
+    inputs.dir(dexDir)
+    outputs.file(baseModuleZip)
+    doLast {
+        baseModuleZip.parentFile.mkdirs()
+        ZipOutputStream(baseModuleZip.outputStream().buffered()).use { out ->
+            ZipFile(protoResourcesApk).use { zip ->
+                for (entry in zip.entries()) {
+                    if (entry.isDirectory) continue
+                    val name = if (entry.name == "AndroidManifest.xml") "manifest/AndroidManifest.xml" else entry.name
+                    out.putNextEntry(ZipEntry(name))
+                    zip.getInputStream(entry).use { it.copyTo(out) }
+                    out.closeEntry()
+                }
+            }
+            dexDir.listFiles { f -> f.name.endsWith(".dex") }!!.sortedBy { it.name }.forEach { f ->
+                out.putNextEntry(ZipEntry("dex/${f.name}"))
+                out.write(f.readBytes())
+                out.closeEntry()
+            }
+        }
+    }
+}
+
+val buildBundle by tasks.registering(JavaExec::class) {
+    dependsOn(packageBaseModule)
+    inputs.file(baseModuleZip)
+    outputs.file(unsignedBundle)
+    classpath = files(bundletoolJar)
+    mainClass.set("com.android.tools.build.bundletool.BundleToolMain")
+    args("build-bundle", "--modules=${baseModuleZip.absolutePath}", "--output=${unsignedBundle.absolutePath}", "--overwrite")
+    doFirst {
+        require(bundletoolJar.exists()) {
+            "bundletool not found. Download bundletool-all-<version>.jar from " +
+                "https://github.com/google/bundletool/releases into sdkbuild/tools/ or pass -Pbundletool=<path>"
+        }
+    }
+}
+
+val bundleRelease by tasks.registering(Exec::class) {
+    group = "build"
+    description = "Builds the Android App Bundle for Google Play, signed with the upload key"
+    dependsOn(buildBundle)
+    inputs.file(unsignedBundle)
+    outputs.file(outputBundle)
+    doFirst {
+        val missing = listOf("storeFile", "storePassword", "keyAlias").filter { uploadProp(it) == null }
+        require(missing.isEmpty()) { "Upload key is not configured (missing: $missing), see keystore/upload.properties" }
+        outputBundle.parentFile.mkdirs()
+    }
+    argumentProviders.add(CommandLineArgumentProvider {
+        val store = File(uploadProp("storeFile") ?: "")
+        val storeFile = if (store.isAbsolute) store else rootDir.resolve("keystore").resolve(store.path)
+        val storePass = uploadProp("storePassword") ?: ""
+        listOf(
+            "-keystore", storeFile.absolutePath,
+            "-storepass", storePass,
+            "-keypass", uploadProp("keyPassword") ?: storePass,
+            "-sigalg", "SHA256withRSA",
+            "-digestalg", "SHA-256",
+            "-signedjar", outputBundle.absolutePath,
+            unsignedBundle.absolutePath,
+            uploadProp("keyAlias") ?: "",
+        )
+    })
+    executable = "jarsigner"
+    doLast { println("AAB: ${outputBundle.absolutePath}") }
 }

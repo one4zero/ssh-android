@@ -16,4 +16,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ssh-term-sdkbuild"
+rootProject.name = "clipshell-sdkbuild"

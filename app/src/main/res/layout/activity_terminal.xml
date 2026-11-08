@@ -58,6 +58,18 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/sel_ai"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:text="@string/for_ai"
+                android:textColor="@color/accent"
+                android:textStyle="bold" />
+
+            <TextView
                 android:id="@+id/sel_all"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -123,7 +135,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:maxLines="3"
+                android:maxLines="8"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp" />
 

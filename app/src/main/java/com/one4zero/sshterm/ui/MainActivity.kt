@@ -93,6 +93,7 @@ class MainActivity : Activity() {
         menu.add(0, MENU_KEYS, 0, R.string.keys)
         menu.add(0, MENU_SNIPPETS, 1, R.string.snippets)
         menu.add(0, MENU_SETTINGS, 2, R.string.settings)
+        menu.add(0, MENU_ABOUT, 3, R.string.about)
         return true
     }
 
@@ -101,6 +102,7 @@ class MainActivity : Activity() {
             MENU_KEYS -> startActivity(Intent(this, KeysActivity::class.java))
             MENU_SNIPPETS -> startActivity(Intent(this, SnippetsActivity::class.java))
             MENU_SETTINGS -> startActivity(Intent(this, SettingsActivity::class.java))
+            MENU_ABOUT -> startActivity(Intent(this, AboutActivity::class.java))
             else -> return super.onOptionsItemSelected(item)
         }
         return true
@@ -274,5 +276,6 @@ class MainActivity : Activity() {
         private const val MENU_KEYS = 1
         private const val MENU_SNIPPETS = 2
         private const val MENU_SETTINGS = 3
+        private const val MENU_ABOUT = 4
     }
 }

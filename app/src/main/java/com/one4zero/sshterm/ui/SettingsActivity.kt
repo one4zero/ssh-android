@@ -49,6 +49,7 @@ class SettingsActivity : Activity() {
         header("Ввод")
         switchRow(getString(R.string.settings_direct_default), settings.directInputDefault) { settings.directInputDefault = it }
         switchRow(getString(R.string.settings_no_suggestions), settings.noSuggestions) { settings.noSuggestions = it }
+        switchRow(getString(R.string.settings_smart_paste), settings.smartPaste) { settings.smartPaste = it }
         switchRow(getString(R.string.settings_extra_keys), settings.showExtraKeys) { settings.showExtraKeys = it }
         switchRow(getString(R.string.settings_snippets), settings.showSnippets) { settings.showSnippets = it }
         switchRow(getString(R.string.settings_vibrate), settings.vibrateOnKeys) { settings.vibrateOnKeys = it }
@@ -61,23 +62,14 @@ class SettingsActivity : Activity() {
             }
         }
 
-        header("О приложении")
-        val version = runCatching { packageManager.getPackageInfo(packageName, 0).versionName }.getOrNull() ?: ""
-        content.addView(TextView(this).apply {
-            text = getString(R.string.settings_about, version) +
-                "\n\nПодсказки:\n" +
-                "• Строка внизу — для набора команд: кнопка ➤ отправляет команду с Enter, долгое нажатие — вставляет без Enter.\n" +
-                "• Кнопка ⌨ переключает прямой ввод в терминал (для vim, nano, htop, mc).\n" +
-                "• Долгое нажатие на терминал выделяет слово; тяните за маркеры, чтобы расширить выделение.\n" +
-                "• Двойное нажатие на слово в выводе вставляет его в строку команды.\n" +
-                "• Меню ⧉ копирует вывод последней команды.\n" +
-                "• Долгое нажатие на кнопку вставки вставляет текст сразу в терминал.\n" +
-                "• Щипок двумя пальцами меняет размер шрифта."
-            textSize = 14f
-            setTextColor(currentTextColorSecondary())
-            setPadding(dp(20), dp(8), dp(20), dp(16))
-        })
+        header(getString(R.string.about))
+        valueRow(getString(R.string.about), "${getString(R.string.app_name)} ${appVersion()}") {
+            startActivity(android.content.Intent(this, AboutActivity::class.java))
+        }
     }
+
+    private fun appVersion(): String =
+        runCatching { packageManager.getPackageInfo(packageName, 0).versionName }.getOrNull() ?: ""
 
     private fun fmt(v: Float) = if (v % 1f == 0f) v.toInt().toString() else v.toString()
 
